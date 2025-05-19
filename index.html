@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المهام اليومية</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>إدارة المهام اليومية</h1>
+        </header>
+        
+        <div class="task-form">
+            <h2>إضافة مهمة جديدة</h2>
+            <form id="task-form">
+                <div class="form-group">
+                    <label for="task-title">عنوان المهمة:</label>
+                    <input type="text" id="task-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-description">وصف المهمة:</label>
+                    <textarea id="task-description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="task-date">تاريخ المهمة:</label>
+                    <input type="date" id="task-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-priority">الأولوية:</label>
+                    <select id="task-priority">
+                        <option value="منخفضة">منخفضة</option>
+                        <option value="متوسطة" selected>متوسطة</option>
+                        <option value="عالية">عالية</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn add-btn">إضافة المهمة</button>
+            </form>
+        </div>
+        
+        <div class="task-search">
+            <h2>البحث عن المهام</h2>
+            <div class="search-form">
+                <div class="form-group">
+                    <label for="search-start-date">من تاريخ:</label>
+                    <input type="date" id="search-start-date">
+                </div>
+                <div class="form-group">
+                    <label for="search-end-date">إلى تاريخ:</label>
+                    <input type="date" id="search-end-date">
+                </div>
+                <button id="search-btn" class="btn search-btn">بحث</button>
+                <button id="reset-search-btn" class="btn reset-btn">إعادة ضبط</button>
+                <button id="export-pdf-btn" class="btn pdf-btn">تصدير PDF <i class="fas fa-file-pdf"></i></button>
+            </div>
+        </div>
+        
+        <div class="tasks-container">
+            <h2>قائمة المهام</h2>
+            <div id="tasks-list">
+                <!-- ستتم إضافة المهام هنا بواسطة JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
