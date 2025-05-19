@@ -96,11 +96,11 @@ function addTask(e) {
     
     // حفظ المهمة في Firebase أولاً
     if (typeof window.saveTasks === 'function') {
-        window.saveTasks(newTask); // تأكد من أن هذه الدالة تنقل البيانات لـ Firebase
-    } else {
-        // إذا لم يكن Firebase متاحاً، استخدم التخزين المحلي
         tasks.push(newTask);
-        localStorage.setItem('tasks', JSON.stringify(tasks));
+        window.saveTasks();
+    } else {
+        alert('تعذر الاتصال بخدمة التخزين السحابي');
+        return;
     }
     
     displayTasks();
@@ -219,15 +219,21 @@ function exportToPDF() {
 }
 
 // تحميل المهام من التخزين المحلي (احتياطي)
+document.getElementById('sync-btn').addEventListener('click', function() {
+    if (typeof window.loadTasks === 'function') {
+        window.loadTasks();
+        alert('تمت مزامنة البيانات بنجاح');
+    } else {
+        loadTasksFromLocalStorage();
+        alert('تم تحميل المهام من التخزين المحلي');
+    }
+});
+
 function loadTasksFromLocalStorage() {
-    // نستخدم هذه الدالة فقط إذا لم يكن المستخدم مسجل الدخول
-    if (typeof window.currentUser === 'undefined' || window.currentUser === null) {
-        const savedTasks = localStorage.getItem('tasks');
-        if (savedTasks) {
-            tasks = JSON.parse(savedTasks);
-            console.log('تم تحميل المهام من التخزين المحلي:', tasks.length);
-            displayTasks();
-        }
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+        tasks = JSON.parse(savedTasks);
+        displayTasks();
     }
 }
 

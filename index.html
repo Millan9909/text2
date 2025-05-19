@@ -79,6 +79,7 @@
                     <button id="search-btn" class="btn search-btn">بحث</button>
                     <button id="reset-search-btn" class="btn reset-btn">إعادة ضبط</button>
                     <button id="export-pdf-btn" class="btn pdf-btn">تصدير PDF <i class="fas fa-file-pdf"></i></button>
+                    <button id="sync-btn" class="btn sync-btn">مزامنة البيانات <i class="fas fa-sync-alt"></i></button>
                 </div>
             </div>
             
@@ -179,7 +180,14 @@
                 document.getElementById('current-user-id').textContent = savedUserId;
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
-                loadTasks();
+                
+                // محاولة تحميل المهام من Firebase أولاً
+                if (typeof firebase !== 'undefined') {
+                    loadTasks();
+                } else {
+                    // إذا فشل الاتصال ب Firebase، تحميل من التخزين المحلي
+                    loadTasksFromLocalStorage();
+                }
             }
         });
     </script>
