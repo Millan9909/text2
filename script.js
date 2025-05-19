@@ -94,18 +94,10 @@ function addTask(e) {
         createdAt: new Date().toISOString()
     };
     
-    console.log('إضافة مهمة جديدة:', newTask);
-    
     tasks.push(newTask);
     
-    // استخدام دالة حفظ المهام من Firebase
-    if (typeof window.saveTasks === 'function') {
-        window.saveTasks();
-    } else {
-        // استخدام التخزين المحلي كاحتياطي
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-        console.log('تم استخدام التخزين المحلي الاحتياطي');
-    }
+    // حفظ المهام في التخزين المحلي
+    localStorage.setItem('tasks', JSON.stringify(tasks));
     
     // عرض المهام بعد الإضافة
     displayTasks();
@@ -113,7 +105,15 @@ function addTask(e) {
     // إعادة ضبط النموذج
     taskForm.reset();
     
-    console.log('تم إضافة المهمة بنجاح');
+    // إضافة رسالة تأكيد
+    alert('تمت إضافة مهمة جديدة بنجاح');
+}
+
+// إعادة ضبث البحث
+function resetSearch() {
+    document.getElementById('search-start-date').value = '';
+    document.getElementById('search-end-date').value = '';
+    displayTasks();
 }
 
 // تبديل حالة إكمال المهمة
@@ -167,13 +167,6 @@ function searchTasks() {
     }
     
     displayTasks(filteredTasks);
-}
-
-// إعادة ضبث البحث
-function resetSearch() {
-    document.getElementById('search-start-date').value = '';
-    document.getElementById('search-end-date').value = '';
-    displayTasks();
 }
 
 // تصدير المهام إلى PDF
@@ -239,12 +232,43 @@ function loadTasksFromLocalStorage() {
     }
 }
 
-// إضافة مستمعي الأحداث
-taskForm.addEventListener('submit', addTask);
-searchBtn.addEventListener('click', searchTasks);
-resetSearchBtn.addEventListener('click', resetSearch);
-exportPdfBtn.addEventListener('click', exportToPDF);
+// تعريف الدوال العامة للاستخدام في HTML
+window.toggleTaskCompletion = toggleTaskCompletion;
+window.deleteTask = deleteTask;
+window.displayTasks = displayTasks;
 
+// مستمع واحد لتحميل الصفحة يقوم بكل المهام المطلوبة
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('تم تحميل الصفحة');
+    
+    // جعل حقول التاريخ قابلة للكتابة
+    document.getElementById('task-date').removeAttribute('readonly');
+    document.getElementById('search-start-date').removeAttribute('readonly');
+    document.getElementById('search-end-date').removeAttribute('readonly');
+    
+    // التحقق من وجود نموذج المهام وتسجيل مستمع الحدث له
+    if (taskForm) {
+        taskForm.addEventListener('submit', addTask);
+        console.log('تم تسجيل مستمع الحدث لنموذج المهام');
+    } else {
+        console.error('لم يتم العثور على نموذج المهام!');
+    }
+    
+    // تسجيل مستمعي الأحداث للأزرار الأخرى
+    if (searchBtn) searchBtn.addEventListener('click', searchTasks);
+    if (resetSearchBtn) resetSearchBtn.addEventListener('click', resetSearch);
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', exportToPDF);
+    
+    // تحميل المهام من Firebase أو التخزين المحلي
+    if (typeof window.loadTasks === 'function') {
+        window.loadTasks();
+    } else {
+        loadTasksFromLocalStorage();
+    }
+    
+    // عرض المهام
+    displayTasks();
+});
 // تعريف الدوال العامة للاستخدام في HTML
 window.toggleTaskCompletion = toggleTaskCompletion;
 window.deleteTask = deleteTask;
