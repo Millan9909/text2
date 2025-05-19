@@ -286,3 +286,24 @@ textarea {
 .logout-btn:hover {
     background-color: #1a2530;
 }
+
+/* أنماط معلومات المستخدم */
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--light-color);
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+#user-display {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+#current-user-id {
+    color: var(--primary-color);
+}

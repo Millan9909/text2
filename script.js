@@ -71,15 +71,6 @@ function displayTasks(tasksToDisplay = tasks) {
     });
 }
 
-// تعريف دالة حفظ المهام إذا لم تكن موجودة في النطاق العام
-if (typeof saveTasks !== 'function') {
-    // دالة احتياطية لحفظ المهام في التخزين المحلي
-    window.saveTasks = function() {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-        console.log('تم حفظ المهام في التخزين المحلي');
-    };
-}
-
 // إضافة مهمة جديدة
 function addTask(e) {
     e.preventDefault();
@@ -107,13 +98,11 @@ function addTask(e) {
     
     tasks.push(newTask);
     
-    // استدعاء دالة حفظ المهام
+    // استخدام دالة حفظ المهام من Firebase
     if (typeof window.saveTasks === 'function') {
         window.saveTasks();
-    } else if (typeof saveTasks === 'function') {
-        saveTasks();
     } else {
-        // إذا لم تكن الدالة متاحة، استخدم التخزين المحلي
+        // استخدام التخزين المحلي كاحتياطي
         localStorage.setItem('tasks', JSON.stringify(tasks));
         console.log('تم استخدام التخزين المحلي الاحتياطي');
     }
@@ -131,11 +120,9 @@ function addTask(e) {
 function toggleTaskCompletion(index) {
     tasks[index].completed = !tasks[index].completed;
     
-    // استدعاء دالة حفظ المهام
+    // استخدام دالة حفظ المهام من Firebase
     if (typeof window.saveTasks === 'function') {
         window.saveTasks();
-    } else if (typeof saveTasks === 'function') {
-        saveTasks();
     } else {
         localStorage.setItem('tasks', JSON.stringify(tasks));
     }
@@ -148,11 +135,9 @@ function deleteTask(index) {
     if (confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
         tasks.splice(index, 1);
         
-        // استدعاء دالة حفظ المهام
+        // استخدام دالة حفظ المهام من Firebase
         if (typeof window.saveTasks === 'function') {
             window.saveTasks();
-        } else if (typeof saveTasks === 'function') {
-            saveTasks();
         } else {
             localStorage.setItem('tasks', JSON.stringify(tasks));
         }
@@ -241,6 +226,19 @@ function exportToPDF() {
     doc.save("المهام_اليومية.pdf");
 }
 
+// تحميل المهام من التخزين المحلي (احتياطي)
+function loadTasksFromLocalStorage() {
+    // نستخدم هذه الدالة فقط إذا لم يكن المستخدم مسجل الدخول
+    if (typeof window.currentUser === 'undefined' || window.currentUser === null) {
+        const savedTasks = localStorage.getItem('tasks');
+        if (savedTasks) {
+            tasks = JSON.parse(savedTasks);
+            console.log('تم تحميل المهام من التخزين المحلي:', tasks.length);
+            displayTasks();
+        }
+    }
+}
+
 // إضافة مستمعي الأحداث
 taskForm.addEventListener('submit', addTask);
 searchBtn.addEventListener('click', searchTasks);
@@ -250,10 +248,13 @@ exportPdfBtn.addEventListener('click', exportToPDF);
 // تعريف الدوال العامة للاستخدام في HTML
 window.toggleTaskCompletion = toggleTaskCompletion;
 window.deleteTask = deleteTask;
+window.displayTasks = displayTasks;
 
-// لا نحتاج إلى تحميل المهام هنا لأننا نستخدم onAuthStateChanged في index.html
+// تحميل المهام عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
     console.log('تم تحميل الصفحة');
-    loadTasksFromLocalStorage();
-    displayTasks();
+    // نستخدم التخزين المحلي فقط إذا لم يكن Firebase متاحًا
+    if (typeof window.loadTasks !== 'function') {
+        loadTasksFromLocalStorage();
+    }
 });
