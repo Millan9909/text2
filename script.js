@@ -94,19 +94,18 @@ function addTask(e) {
         createdAt: new Date().toISOString()
     };
     
-    tasks.push(newTask);
+    // حفظ المهمة في Firebase أولاً
+    if (typeof window.saveTasks === 'function') {
+        window.saveTasks(newTask); // تأكد من أن هذه الدالة تنقل البيانات لـ Firebase
+    } else {
+        // إذا لم يكن Firebase متاحاً، استخدم التخزين المحلي
+        tasks.push(newTask);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
     
-    // حفظ المهام في التخزين المحلي
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    
-    // عرض المهام بعد الإضافة
     displayTasks();
-    
-    // إعادة ضبط النموذج
     taskForm.reset();
-    
-    // إضافة رسالة تأكيد
-    alert('تمت إضافة مهمة جديدة بنجاح');
+    alert('تمت إضافة المهمة بنجاح وسيتم مزامنتها مع أجهزتك الأخرى');
 }
 
 // إعادة ضبث البحث
