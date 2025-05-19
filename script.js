@@ -71,6 +71,15 @@ function displayTasks(tasksToDisplay = tasks) {
     });
 }
 
+// تعريف دالة حفظ المهام إذا لم تكن موجودة في النطاق العام
+if (typeof saveTasks !== 'function') {
+    // دالة احتياطية لحفظ المهام في التخزين المحلي
+    window.saveTasks = function() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        console.log('تم حفظ المهام في التخزين المحلي');
+    };
+}
+
 // إضافة مهمة جديدة
 function addTask(e) {
     e.preventDefault();
@@ -79,6 +88,11 @@ function addTask(e) {
     const description = document.getElementById('task-description').value;
     const date = document.getElementById('task-date').value;
     const priority = document.getElementById('task-priority').value;
+    
+    if (!title || !date) {
+        alert('يرجى ملء جميع الحقول المطلوبة');
+        return;
+    }
     
     const newTask = {
         title,
@@ -89,17 +103,43 @@ function addTask(e) {
         createdAt: new Date().toISOString()
     };
     
+    console.log('إضافة مهمة جديدة:', newTask);
+    
     tasks.push(newTask);
-    saveTasks(); // سيستخدم الدالة المعرفة في index.html
+    
+    // استدعاء دالة حفظ المهام
+    if (typeof window.saveTasks === 'function') {
+        window.saveTasks();
+    } else if (typeof saveTasks === 'function') {
+        saveTasks();
+    } else {
+        // إذا لم تكن الدالة متاحة، استخدم التخزين المحلي
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        console.log('تم استخدام التخزين المحلي الاحتياطي');
+    }
+    
+    // عرض المهام بعد الإضافة
+    displayTasks();
     
     // إعادة ضبط النموذج
     taskForm.reset();
+    
+    console.log('تم إضافة المهمة بنجاح');
 }
 
 // تبديل حالة إكمال المهمة
 function toggleTaskCompletion(index) {
     tasks[index].completed = !tasks[index].completed;
-    saveTasks();
+    
+    // استدعاء دالة حفظ المهام
+    if (typeof window.saveTasks === 'function') {
+        window.saveTasks();
+    } else if (typeof saveTasks === 'function') {
+        saveTasks();
+    } else {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+    
     displayTasks();
 }
 
@@ -107,7 +147,16 @@ function toggleTaskCompletion(index) {
 function deleteTask(index) {
     if (confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
         tasks.splice(index, 1);
-        saveTasks();
+        
+        // استدعاء دالة حفظ المهام
+        if (typeof window.saveTasks === 'function') {
+            window.saveTasks();
+        } else if (typeof saveTasks === 'function') {
+            saveTasks();
+        } else {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        
         displayTasks();
     }
 }
@@ -204,5 +253,7 @@ window.deleteTask = deleteTask;
 
 // لا نحتاج إلى تحميل المهام هنا لأننا نستخدم onAuthStateChanged في index.html
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('تم تحميل الصفحة');
+    loadTasksFromLocalStorage();
     displayTasks();
 });
